@@ -8,7 +8,7 @@ using UniversiteDomain.UseCases.ParcoursUseCases.EtudiantDansParcours;
 
 namespace UniversiteDomainUnitTests;
 
-public class ParcoursUnitsTestsd
+public class ParcoursUnitsTests
 {
     [SetUp]
     public void Setup()
