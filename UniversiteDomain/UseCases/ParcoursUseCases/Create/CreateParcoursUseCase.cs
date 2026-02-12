@@ -1,11 +1,10 @@
-using UniversiteDomain.DataAdapters;
+using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.ParcoursExceptions;
-using UniversiteDomain.Util;
 
 namespace UniversiteDomain.UseCases.EtudiantUseCases.Create;
 
-public class CreateParcoursUseCase(IParcoursRepository parcoursRepository)
+public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
 {
     public async Task<Parcours> ExecuteAsync(string nomParcours, int anneeFormation)
     {
@@ -15,8 +14,8 @@ public class CreateParcoursUseCase(IParcoursRepository parcoursRepository)
     public async Task<Parcours> ExecuteAsync(Parcours parcours)
     {
         await CheckBusinessRules(parcours);
-        Parcours pa = await parcoursRepository.CreateAsync(parcours);
-        parcoursRepository.SaveChangesAsync().Wait();
+        Parcours pa = await repositoryFactory.ParcoursRepository().CreateAsync(parcours);
+        repositoryFactory.SaveChangesAsync().Wait();
         return pa;
     }
     private async Task CheckBusinessRules(Parcours parcours)
@@ -24,16 +23,16 @@ public class CreateParcoursUseCase(IParcoursRepository parcoursRepository)
         ArgumentNullException.ThrowIfNull(parcours);
         ArgumentNullException.ThrowIfNull(parcours.NomParcours);
         ArgumentNullException.ThrowIfNull(parcours.AnneeFormation);
-        ArgumentNullException.ThrowIfNull(parcoursRepository);
+        ArgumentNullException.ThrowIfNull(repositoryFactory.ParcoursRepository());
         
         // On recherche un parcours avec le même nom et la même année de formation
-        List<Parcours> existe = await parcoursRepository.FindByConditionAsync(p=>p.NomParcours.Equals(parcours.NomParcours) && p.AnneeFormation == parcours.AnneeFormation);
+        List<Parcours> existe = await repositoryFactory.ParcoursRepository().FindByConditionAsync(p=>p.NomParcours.Equals(parcours.NomParcours) && p.AnneeFormation == parcours.AnneeFormation);
 
         // Si un parcours existe déjà avec le même nom et la même année de formation, on lève une exception
         if (existe is {Count:>0}) throw new DuplicateParcoursException(parcours.NomParcours + "-" + parcours.AnneeFormation + " existe déjà");
         
-        // On vérifie si l'année de formation est valide (entre 2020 et 2030)
-        if (parcours.AnneeFormation < 2020 || parcours.AnneeFormation > 2030) throw new InvalidAnneeFormationException(parcours.AnneeFormation + " n'est pas une année de formation valide (entre 2020 et 2030)");
+        // On vérifie si l'année de formation est valide (entre 1 et 2)
+        if (parcours.AnneeFormation < 1 || parcours.AnneeFormation > 2) throw new InvalidAnneeFormationException(parcours.AnneeFormation + " n'est pas une année de formation valide (entre 1 et 2)");
         
         // On vérifie que le nom du parcours fait au moins 3 caractères
         if (parcours.NomParcours.Length < 3) throw new InvalidNomParcoursException(parcours.NomParcours + " n'est pas un nom de parcours valide (au moins 3 caractères)");
