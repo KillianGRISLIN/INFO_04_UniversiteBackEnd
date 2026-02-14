@@ -7,9 +7,9 @@ namespace UniversiteDomain.UseCases.NoteUseCases.Create;
 
 public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
 {
-    public async Task<Note> ExecuteAsync(Etudiant etudiant, Ue ue, double valeur) 
+    public async Task<Note> ExecuteAsync(long etudiantId, long ueId, float valeur) 
     {
-        var note = new Note{EtudiantId = etudiant.Id, UeId = ue.Id, Valeur = valeur, Etudiant = etudiant, Ue = ue};
+        var note = new Note{EtudiantId = etudiantId, UeId = ueId, Valeur = valeur};
         return await ExecuteAsync(note);
     }
     public async Task<Note> ExecuteAsync(Note note)

@@ -2,7 +2,7 @@ using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.ParcoursExceptions;
 
-namespace UniversiteDomain.UseCases.EtudiantUseCases.Create;
+namespace UniversiteDomain.UseCases.ParcoursUseCases.Create;
 
 public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
 {
@@ -33,8 +33,5 @@ public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
         
         // On vérifie si l'année de formation est valide (entre 1 et 2)
         if (parcours.AnneeFormation < 1 || parcours.AnneeFormation > 2) throw new InvalidAnneeFormationException(parcours.AnneeFormation + " n'est pas une année de formation valide (entre 1 et 2)");
-        
-        // On vérifie que le nom du parcours fait au moins 3 caractères
-        if (parcours.NomParcours.Length < 3) throw new InvalidNomParcoursException(parcours.NomParcours + " n'est pas un nom de parcours valide (au moins 3 caractères)");
     }
 }

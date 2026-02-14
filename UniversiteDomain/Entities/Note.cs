@@ -7,9 +7,10 @@ public class Note
     public long UeId { get; set; } 
     public Etudiant Etudiant { get; set; } 
     public Ue Ue { get; set; }
-    public double Valeur { get; set; }
+    public float Valeur { get; set; }
 
     public override string ToString()
     {
-        return "ID "+Id +" :  Etudiant "+EtudiantId+" - UE "+UeId+" - Valeur "+Valeur; }
+        return "ID "+Id +" :  Etudiant "+EtudiantId+" - UE "+UeId+" - Valeur "+Valeur; 
+    }
 }

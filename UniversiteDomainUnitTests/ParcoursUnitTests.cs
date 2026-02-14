@@ -5,6 +5,7 @@ using UniversiteDomain.Entities;
 using UniversiteDomain.UseCases.EtudiantUseCases;
 using UniversiteDomain.UseCases.EtudiantUseCases.Create;
 using UniversiteDomain.UseCases.ParcoursUseCases;
+using UniversiteDomain.UseCases.ParcoursUseCases.Create;
 using UniversiteDomain.UseCases.ParcoursUseCases.EtudiantDansParcours;
 
 namespace UniversiteDomainUnitTests;
