@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
+using UniversiteDomain.Dtos;
 using UniversiteDomain.Entities;
 using UniversiteDomain.UseCases.NoteUseCases.GenererCsvNotesUe;
+using UniversiteDomain.UseCases.NoteUseCases.Get;
 using UniversiteDomain.UseCases.NoteUseCases.ImporterNotesCsv;
 using UniversiteDomain.UseCases.SecurityUseCases.Get;
 using UniversiteRestApi.Dtos;
@@ -81,6 +83,128 @@ namespace UniversiteRestApi.Controllers
             }
 
             return Ok("Import des notes effectué avec succès.");
+        }
+        
+        // DELETE: api/Note/{etudiantId}/{ueId}
+        [HttpDelete("{etudiantId}/{ueId}")]
+        public async Task<IActionResult> DeleteNote(long etudiantId, long ueId)
+        {
+            string role = "";
+            string email = "";
+            IUniversiteUser user = null;
+            try
+            {
+                CheckSecu(out role, out email, out user);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            UniversiteDomain.UseCases.NoteUseCases.Delete.DeleteNoteUseCase uc = new UniversiteDomain.UseCases.NoteUseCases.Delete.DeleteNoteUseCase(repositoryFactory);
+            if (!uc.IsAuthorized(role, user, etudiantId)) return Unauthorized();
+
+            try
+            {
+                await uc.ExecuteAsync(etudiantId, ueId);
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(detail: ex.Message);
+            }
+
+            return Ok($"Note supprimée pour l'étudiant {etudiantId} dans l'UE {ueId}.");
+        }
+        
+        // GET: api/Note/{etudiantId}/{ueId}
+        [HttpGet("{etudiantId}/{ueId}")]
+        public async Task<ActionResult<NoteAvecUeDto>> GetNote(long etudiantId, long ueId)
+        {
+            string role = "";
+            string email = "";
+            IUniversiteUser user = null;
+            try
+            {
+                CheckSecu(out role, out email, out user);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            GetNoteUseCase uc = new GetNoteUseCase(repositoryFactory);
+            if (!uc.IsAuthorized(role, user, etudiantId)) return Unauthorized();            
+            Note? note;
+            try
+            {
+                note = await uc.ExecuteAsync(etudiantId, ueId);
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(detail: ex.Message);
+            }
+            return new NoteAvecUeDto().ToDto(note);
+        }
+        
+        // GET: api/Note/{etudiantId}
+        [HttpGet("{etudiantId}")]
+        public async Task<ActionResult<List<NoteAvecUeDto>>> GetNote(long etudiantId)
+        {
+            string role = "";
+            string email = "";
+            IUniversiteUser user = null;
+            try
+            {
+                CheckSecu(out role, out email, out user);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            GetNoteUseCase uc = new GetNoteUseCase(repositoryFactory);
+            if (!uc.IsAuthorized(role, user, etudiantId)) return Unauthorized();            
+            List<Note> note;
+            try
+            {
+                note = await uc.ExecuteAsync(etudiantId);
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(detail: ex.Message);
+            }
+            return NoteAvecUeDto.ToDtos(note);
+        }
+        
+
+        // GET: api/Note
+        [HttpGet]
+        public async Task<ActionResult<List<NoteAvecUeDto>>> GetToutesLesNotes()
+        {
+            string role = "";
+            string email = "";
+            IUniversiteUser user = null;
+            try
+            {
+                CheckSecu(out role, out email, out user);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            GetToutesLesNotesUseCase uc = new GetToutesLesNotesUseCase(repositoryFactory);
+            if (!uc.IsAuthorized(role)) return Unauthorized();
+            List<Note> notes;
+            try
+            {
+                notes = await uc.ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(detail: ex.Message);
+            }
+            return NoteAvecUeDto.ToDtos(notes);
         }
         
         private void CheckSecu(out string role, out string email, out IUniversiteUser user)
