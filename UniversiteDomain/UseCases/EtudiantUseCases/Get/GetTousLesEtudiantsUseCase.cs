@@ -4,12 +4,12 @@ using UniversiteDomain.Entities;
 
 namespace UniversiteDomain.UseCases.EtudiantUseCases.Get;
 
-public class GetEtudiantCompletUseCase(IRepositoryFactory factory)
+public class GetTousLesEtudiantsUseCase(IRepositoryFactory factory)
 {
-    public async Task<Etudiant?> ExecuteAsync(long idEtudiant)
+    public async Task<List<Etudiant>?> ExecuteAsync()
     {
         await CheckBusinessRules();
-        Etudiant? etudiant = await factory.EtudiantRepository().FindEtudiantCompletAsync(idEtudiant);
+        List<Etudiant>? etudiant = await factory.EtudiantRepository().FindAllAsync();
         return etudiant;
     }
     private async Task CheckBusinessRules()
@@ -18,11 +18,9 @@ public class GetEtudiantCompletUseCase(IRepositoryFactory factory)
         IEtudiantRepository etudiantRepository=factory.EtudiantRepository();
         ArgumentNullException.ThrowIfNull(etudiantRepository);
     }
-    public bool IsAuthorized(string role, IUniversiteUser user, long idEtudiant)
+    public bool IsAuthorized(string role)
     {
         if (role.Equals(Roles.Scolarite) || role.Equals(Roles.Responsable)) return true;
-        // Si c'est un étudiant qui est connecté,
-        // il ne peut consulter que ses notes
-        return user.Etudiant!=null && role.Equals(Roles.Etudiant) && user.Etudiant.Id==idEtudiant;
+        return false;
     }
 }

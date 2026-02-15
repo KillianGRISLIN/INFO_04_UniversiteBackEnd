@@ -42,17 +42,15 @@ public class UniversiteUserRepository(UniversiteDbContext context, UserManager<U
         return userManager.GetRolesAsync(u).Result.ToList();
     }
     
-    public async Task<int> DeleteAsync(long id)
+    public async Task DeleteAsync(long id)
     {
         Etudiant etud = context.Etudiants.Find(id);
         UniversiteUser user= await userManager.FindByEmailAsync(etud.Email);
         if (user!=null)
         {
             await userManager.DeleteAsync(user);
-            int res=await  context.SaveChangesAsync();
-            return 1;
+            await context.SaveChangesAsync();
         }
-        return 0;
     }
 
     public async Task<bool> IsInRoleAsync(string email, string role)

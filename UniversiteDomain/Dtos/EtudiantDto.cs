@@ -20,6 +20,17 @@ public class EtudiantDto
         return this;
     }
     
+    public static List<EtudiantDto> ToDtos(List<Etudiant> etudiants)
+    {
+        List<EtudiantDto> etudiantDtos = new List<EtudiantDto>();
+        foreach (var etudiant in etudiants)
+        {
+            EtudiantDto etudiantDto = new EtudiantDto().ToDto(etudiant);
+            etudiantDtos.Add(etudiantDto);
+        }
+        return etudiantDtos;
+    }
+    
     public Etudiant ToEntity()
     {
         return new Etudiant {Id = this.Id, NumEtud = this.NumEtud, Nom = this.Nom, Prenom = this.Prenom, Email = this.Email};

@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="UseCases\EtudiantUseCases\Update\" />
       <Folder Include="UseCases\ParcoursUseCases\Delete\" />
       <Folder Include="UseCases\ParcoursUseCases\Get\" />
       <Folder Include="UseCases\ParcoursUseCases\Update\" />
