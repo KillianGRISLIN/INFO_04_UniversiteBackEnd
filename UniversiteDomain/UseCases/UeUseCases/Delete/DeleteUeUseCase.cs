@@ -2,15 +2,15 @@ using UniversiteDomain.DataAdapters;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
 
-namespace UniversiteDomain.UseCases.UeUseCases.Get;
+namespace UniversiteDomain.UseCases.UeUseCases.Delete;
 
-public class GetUeByIdUseCase(IRepositoryFactory factory)
+public class DeleteUeUseCase(IRepositoryFactory factory)
 {
-    public async Task<Ue?> ExecuteAsync(long idUe)
+    public async Task ExecuteAsync(long idUe)
     {
         await CheckBusinessRules();
-        Ue? ue = await factory.UeRepository().FindAsync(idUe);
-        return ue;
+        await factory.UeRepository().DeleteAsync(idUe);
+        await factory.SaveChangesAsync();
     }
     private async Task CheckBusinessRules()
     {
@@ -18,10 +18,9 @@ public class GetUeByIdUseCase(IRepositoryFactory factory)
         IUeRepository ueRepository = factory.UeRepository();
         ArgumentNullException.ThrowIfNull(ueRepository);
     }
-    
     public bool IsAuthorized(string role)
     {
-        if (role.Equals(Roles.Scolarite) || role.Equals(Roles.Responsable)) return true;
-        return false;
+        return role == Roles.Scolarite || role == Roles.Responsable;
     }
 }
+

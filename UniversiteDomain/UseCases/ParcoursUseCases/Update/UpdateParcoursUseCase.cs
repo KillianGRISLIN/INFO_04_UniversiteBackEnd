@@ -1,6 +1,7 @@
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.ParcoursExceptions;
+using UniversiteDomain.UseCases.ParcoursUseCases.Get;
 
 namespace UniversiteDomain.UseCases.ParcoursUseCases.Update;
 
@@ -21,8 +22,9 @@ public class UpdateParcoursUseCase(IRepositoryFactory repositoryFactory)
         ArgumentNullException.ThrowIfNull(repositoryFactory.ParcoursRepository());
         
         // On recherche un parcours avec le même nom et la même année de formation, mais un id différent
-        List<Parcours> existe = await repositoryFactory.ParcoursRepository().FindByConditionAsync(p => p.NomParcours.Equals(parcours.NomParcours) && p.AnneeFormation == parcours.AnneeFormation && p.Id != parcours.Id);
-        if (existe is {Count:>0}) throw new DuplicateParcoursException(parcours.NomParcours + "-" + parcours.AnneeFormation + " existe déjà");
+        GetParcoursByIdUseCase getParcoursByIdUseCase = new GetParcoursByIdUseCase(repositoryFactory);
+        Parcours? parcoursExiste = await getParcoursByIdUseCase.ExecuteAsync(parcours.Id);
+        if (parcoursExiste == null) throw new ParcoursNotFoundException(parcours.NomParcours + "-" + parcours.AnneeFormation + " n'existe pas");
         if (parcours.AnneeFormation < 1 || parcours.AnneeFormation > 2) throw new InvalidAnneeFormationException(parcours.AnneeFormation + " n'est pas une année de formation valide (entre 1 et 2)");
     }
 

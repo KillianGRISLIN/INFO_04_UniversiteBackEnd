@@ -4,24 +4,23 @@ using UniversiteDomain.Entities;
 
 namespace UniversiteDomain.UseCases.UeUseCases.Get;
 
-public class GetUeByIdUseCase(IRepositoryFactory factory)
+public class GetToutesLesUesUseCase(IRepositoryFactory factory)
 {
-    public async Task<Ue?> ExecuteAsync(long idUe)
+    public async Task<List<Ue>> ExecuteAsync()
     {
         await CheckBusinessRules();
-        Ue? ue = await factory.UeRepository().FindAsync(idUe);
-        return ue;
+        return await factory.UeRepository().FindAllAsync();
     }
+    
     private async Task CheckBusinessRules()
     {
         ArgumentNullException.ThrowIfNull(factory);
         IUeRepository ueRepository = factory.UeRepository();
         ArgumentNullException.ThrowIfNull(ueRepository);
     }
-    
     public bool IsAuthorized(string role)
     {
-        if (role.Equals(Roles.Scolarite) || role.Equals(Roles.Responsable)) return true;
-        return false;
+        return role == Roles.Scolarite || role == Roles.Responsable;
     }
 }
+
