@@ -16,6 +16,17 @@ public class UeDto
         return this;
     }
     
+    public static List<UeDto> ToDtos(List<Ue> ues)
+    {
+        List<UeDto> dtos = new();
+        foreach (var ue in ues)
+        {
+            dtos.Add(new UeDto().ToDto(ue));
+        }
+
+        return dtos;
+    }
+    
     public Ue ToEntity()
     {
         return new Ue {Id = this.Id, NumeroUe = this.NumeroUe, Intitule = this.Intitule};

@@ -16,6 +16,16 @@ public class ParcoursDto
         return this;
     }
     
+    public static List<ParcoursDto> ToDtos(List<Parcours> parcours)
+    {
+        List<ParcoursDto> dtos = new List<ParcoursDto>();
+        foreach (var p in parcours)
+        {
+            dtos.Add(new ParcoursDto().ToDto(p));
+        }
+        return dtos;
+    }
+    
     public Parcours ToEntity()
     {
         return new Parcours {Id = this.Id, NomParcours = this.NomParcours, AnneeFormation = this.AnneeFormation};

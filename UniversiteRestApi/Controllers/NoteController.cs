@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Dtos;
 using UniversiteDomain.Entities;
+using UniversiteDomain.UseCases.NoteUseCases.Delete;
 using UniversiteDomain.UseCases.NoteUseCases.GenererCsvNotesUe;
 using UniversiteDomain.UseCases.NoteUseCases.Get;
 using UniversiteDomain.UseCases.NoteUseCases.ImporterNotesCsv;
+using UniversiteDomain.UseCases.NoteUseCases.Update;
 using UniversiteDomain.UseCases.SecurityUseCases.Get;
 using UniversiteRestApi.Dtos;
 
@@ -101,7 +103,7 @@ namespace UniversiteRestApi.Controllers
                 return Unauthorized();
             }
 
-            UniversiteDomain.UseCases.NoteUseCases.Delete.DeleteNoteUseCase uc = new UniversiteDomain.UseCases.NoteUseCases.Delete.DeleteNoteUseCase(repositoryFactory);
+            DeleteNoteUseCase uc = new DeleteNoteUseCase(repositoryFactory);
             if (!uc.IsAuthorized(role, user, etudiantId)) return Unauthorized();
 
             try
@@ -205,6 +207,37 @@ namespace UniversiteRestApi.Controllers
                 return ValidationProblem(detail: ex.Message);
             }
             return NoteAvecUeDto.ToDtos(notes);
+        }
+        
+        // PUT: api/Note/{etudiantId}/{ueId}
+        [HttpPut("{etudiantId}/{ueId}")]
+        public async Task<IActionResult> UpdateNote(long etudiantId, long ueId, [FromBody] float valeur)
+        {
+            string role = "";
+            string email = "";
+            IUniversiteUser user = null;
+            try
+            {
+                CheckSecu(out role, out email, out user);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            UpdateNoteUseCase uc = new UpdateNoteUseCase(repositoryFactory);
+            if (!uc.IsAuthorized(role)) return Unauthorized();
+            Note note;
+            try
+            {
+                note = new Note { EtudiantId = etudiantId, UeId = ueId, Valeur = valeur };
+                await uc.ExecuteAsync(note);
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(detail: ex.Message);
+            }
+            return Ok($"Note mise à jour pour l'étudiant {etudiantId} dans l'UE {ueId}.");
         }
         
         private void CheckSecu(out string role, out string email, out IUniversiteUser user)

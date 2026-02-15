@@ -34,4 +34,9 @@ public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
         // On vérifie si l'année de formation est valide (entre 1 et 2)
         if (parcours.AnneeFormation < 1 || parcours.AnneeFormation > 2) throw new InvalidAnneeFormationException(parcours.AnneeFormation + " n'est pas une année de formation valide (entre 1 et 2)");
     }
+    
+    public bool IsAuthorized(string role)
+    {
+        return role == "Scolarite" || role == "Responsable";
+    }
 }

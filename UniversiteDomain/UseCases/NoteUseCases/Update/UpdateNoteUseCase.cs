@@ -39,5 +39,10 @@ public class UpdateNoteUseCase(IRepositoryFactory repositoryFactory)
         
         return existe[0];
     }
+    
+    public bool IsAuthorized(string role)
+    {
+        return role.Equals(Roles.Responsable) || role.Equals(Roles.Scolarite);
+    }
 }
 
