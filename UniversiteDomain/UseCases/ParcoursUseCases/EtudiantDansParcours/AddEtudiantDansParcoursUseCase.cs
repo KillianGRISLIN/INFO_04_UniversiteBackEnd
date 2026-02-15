@@ -3,6 +3,7 @@ using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.EtudiantExceptions;
 using UniversiteDomain.Exceptions.ParcoursExceptions;
+using UniversiteDomain.UseCases.EtudiantUseCases.ParcoursDansEtudiant;
 
 namespace UniversiteDomain.UseCases.ParcoursUseCases.EtudiantDansParcours;
 
@@ -18,6 +19,9 @@ public class AddEtudiantDansParcoursUseCase(IRepositoryFactory repositoryFactory
       public async Task<Parcours> ExecuteAsync(long idParcours, long idEtudiant)
       {
           await CheckBusinessRules(idParcours, idEtudiant); 
+          // Ajout dans l'étudiant le parcours suivi
+          ParcoursDansEtudiantUseCase parcoursDansEtudiantUseCase = new ParcoursDansEtudiantUseCase(repositoryFactory);
+          await parcoursDansEtudiantUseCase.ExecuteAsync(idParcours, idEtudiant);
           return await repositoryFactory.ParcoursRepository().AddEtudiantAsync(idParcours, idEtudiant);
       }
 
@@ -30,6 +34,10 @@ public class AddEtudiantDansParcoursUseCase(IRepositoryFactory repositoryFactory
       public async Task<Parcours> ExecuteAsync(long idParcours, long [] idEtudiants)
       {
         foreach(var id in idEtudiants) await CheckBusinessRules(idParcours, id);
+        // Ajout dans tous les étudiants le parcours suivi
+        ParcoursDansEtudiantUseCase parcoursDansEtudiantUseCase = new ParcoursDansEtudiantUseCase(repositoryFactory);
+        foreach(var id in idEtudiants) await parcoursDansEtudiantUseCase.ExecuteAsync(idParcours, id);
+        
         return await repositoryFactory.ParcoursRepository().AddEtudiantAsync(idParcours, idEtudiants);
       }   
 
