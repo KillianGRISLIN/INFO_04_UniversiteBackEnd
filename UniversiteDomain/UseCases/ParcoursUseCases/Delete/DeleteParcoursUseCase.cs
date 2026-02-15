@@ -1,5 +1,6 @@
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
+using UniversiteDomain.Exceptions.ParcoursExceptions;
 using UniversiteDomain.UseCases.EtudiantUseCases.Get;
 using UniversiteDomain.UseCases.UeUseCases.Get;
 
@@ -41,7 +42,7 @@ public class DeleteParcoursUseCase(IRepositoryFactory repositoryFactory)
         // Vérification de l'existence du parcours
         Parcours parcours = await repositoryFactory.ParcoursRepository().FindAsync(parcoursId);
         if (parcours == null)
-            throw new Exception($"Aucun parcours avec l'id {parcoursId}");
+            throw new ParcoursNotFoundException($"Aucun parcours avec l'id {parcoursId}");
     }
     
     public bool IsAuthorized(string role)

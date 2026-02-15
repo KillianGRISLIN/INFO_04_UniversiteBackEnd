@@ -3,23 +3,22 @@ using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.NoteExceptions;
 using UniversiteDomain.Exceptions.UeExceptions;
 
-namespace UniversiteDomain.UseCases.NoteUseCases.Create;
+namespace UniversiteDomain.UseCases.NoteUseCases.Update;
 
-public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
+public class UpdateNoteUseCase(IRepositoryFactory repositoryFactory)
 {
-    public async Task<Note> ExecuteAsync(long etudiantId, long ueId, float valeur) 
+    public async Task ExecuteAsync(Note note)
     {
-        var note = new Note{EtudiantId = etudiantId, UeId = ueId, Valeur = valeur};
-        return await ExecuteAsync(note);
+        Note noteAModifier = await CheckBusinessRules(note);
+        ArgumentNullException.ThrowIfNull(note);
+        
+        noteAModifier.Valeur = note.Valeur;
+
+        await repositoryFactory.NoteRepository().UpdateAsync(noteAModifier);
+        await repositoryFactory.SaveChangesAsync();
     }
-    public async Task<Note> ExecuteAsync(Note note)
-    {
-        await CheckBusinessRules(note);
-        Note noteCree = await repositoryFactory.NoteRepository().CreateAsync(note);
-        repositoryFactory.SaveChangesAsync().Wait();
-        return noteCree;
-    }
-    private async Task CheckBusinessRules(Note note)
+    
+    private async Task<Note> CheckBusinessRules(Note note)
     {
         ArgumentNullException.ThrowIfNull(note);
         ArgumentNullException.ThrowIfNull(note.EtudiantId);
@@ -29,7 +28,7 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
     
         // On recherche si l'étudiant a déjà une note pour cette UE
         List<Note> existe = await repositoryFactory.NoteRepository().FindByConditionAsync(n=>n.EtudiantId.Equals(note.EtudiantId) && n.UeId.Equals(note.UeId));
-        if (existe.Count > 0) throw new DuplicateNoteException(note.EtudiantId + " a déjà une note pour l'UE " + note.UeId);
+        if (existe.Count == 0) throw new NoteNotFoundException(note.EtudiantId + " a déjà une note pour l'UE " + note.UeId);
 
         // On vérifie que l'étudiant est bien inscrit dans l'UE
         List<Etudiant> etudiantInscrit = await repositoryFactory.EtudiantRepository().FindByConditionAsync(e=>e.Id.Equals(note.EtudiantId) && e.ParcoursSuivi.UesEnseignees.Any(u=>u.Id.Equals(note.UeId)));
@@ -37,5 +36,8 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
         
         // Le métier définit que les notes doivent être compris entre 0 et 20
         if (note.Valeur < 0 || note.Valeur > 20) throw new InvalidValeurException(note.Valeur+" incorrect - la valeur d'une note doit être comprise entre 0 et 20");
+        
+        return existe[0];
     }
 }
+
